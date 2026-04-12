@@ -93,12 +93,12 @@
     <div class="date-label" id="date-label">—</div>
   </div>
   <div class="header-right">
-    <div class="nav-buttons">
-      <button class="nav-btn" onclick="changeDay(-1)">← prev</button>
-      <button class="nav-btn active" onclick="goToday()">today</button>
-      <button class="nav-btn" onclick="changeDay(1)">next →</button>
-      <button class="theme-btn" onclick="toggleThemePanel()">⚙ theme</button>
-    </div>
+ <div class="nav-buttons">
+  <button class="nav-btn" onclick="findNextClass()">⚡ next class</button> <button class="nav-btn" onclick="changeDay(-1)">← prev</button>
+  <button class="nav-btn active" onclick="goToday()">today</button>
+  <button class="nav-btn" onclick="changeDay(1)">next →</button>
+  <button class="theme-btn" onclick="toggleThemePanel()">⚙ theme</button>
+</div>
   </div>
 </header>
 
@@ -145,7 +145,7 @@
     </p>
     <label>x-community-token (from ClassData request headers)</label>
     <textarea id="jwt-input" placeholder="eyJ0eXA..."></textarea>
-    <label>Member ID — DevTools → Network → reload → ClassData POST → Response → Id</label>
+    <label>Member ID — DevTools → Network → reload → ClassData POST → Response → Id. Make sure you pick the second ID, because the first one doesn't work.</label>
     <input id="member-input">
     <br>
     <button onclick="loadWithToken()">Load timetable</button>
@@ -170,6 +170,7 @@
   let currentDate = new Date();
   let cachedJwt = null;
   let cachedMemberId = null;
+  let currentClasses = []; // Store the fetched classes globally for searching
 
   // --- THEME LOGIC ---
   function applyTheme(t) {
@@ -185,12 +186,6 @@
     document.querySelectorAll('.theme-swatch').forEach((el, i) => {
       el.classList.toggle('active', THEMES[i]?.name === t.name);
     });
-    document.getElementById('c-bg').value = t.bg;
-    document.getElementById('c-surface').value = t.surface;
-    document.getElementById('c-text').value = t.text;
-    document.getElementById('c-accent').value = t.accent;
-    document.getElementById('c-border').value = t.border;
-    document.getElementById('c-muted').value = t.muted;
   }
 
   function applyCustomTheme() {
@@ -280,23 +275,27 @@
     });
     const data = JSON.parse(await res.text());
     if (data?.errors?.length) throw new Error(JSON.stringify(data.errors, null, 2));
-    return data?.data?.classes ?? [];
+    currentClasses = data?.data?.classes ?? [];
+    return currentClasses;
   }
 
-  function renderClasses(classes) {
+  function renderClasses(classes, highlightId = null) {
     const el = document.getElementById("content");
     if (!classes.length) {
       el.innerHTML = `<div class="empty-day"><span class="big">—</span>No classes scheduled.</div>`;
       return;
     }
-    el.innerHTML = `<div class="class-list">${classes.map((c, i) => `
-      <div class="class-card" style="animation-delay:${i * 0.05}s">
+    el.innerHTML = `<div class="class-list">${classes.map((c, i) => {
+      const isNext = c.id === highlightId;
+      return `
+      <div class="class-card" id="class-${c.id}" style="animation-delay:${i * 0.05}s; ${isNext ? 'border: 1px solid var(--accent); padding: 20px;' : ''}">
         <div class="class-time">${formatTime(c.startTime)}<br>${formatTime(c.endTime)}</div>
         <div class="class-bar" style="background:${c.colour || 'var(--muted)'}"></div>
         <div class="class-body">
           <div class="class-subject">
             ${c.description || c.title}
             ${isNow(c.startTime, c.endTime) ? '<span class="now-indicator">now</span>' : ''}
+            ${isNext ? '<span class="now-indicator" style="background:var(--text); color:var(--bg)">NEXT UP</span>' : ''}
           </div>
           <div class="class-meta">
             ${c.room ? `<span>📍 ${c.room}</span>` : ''}
@@ -305,8 +304,29 @@
         </div>
         <div class="class-period">${c.periodName !== null && c.periodName !== '' ? `P${c.periodName}` : ''}</div>
       </div>
-    `).join('')}</div>
+    `}).join('')}</div>
     <center><button class="nav-btn" style="margin-top:40px; opacity:0.5" onclick="clearSavedData()">Logout / Clear Keys</button></center>`;
+    
+    if (highlightId) {
+        document.getElementById(`class-${highlightId}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  function findNextClass() {
+    const now = new Date();
+    if (currentDate.toDateString() !== now.toDateString()) {
+        goToday();
+        setTimeout(findNextClass, 800);
+        return;
+    }
+
+    const nextClass = currentClasses.find(c => new Date(c.startTime) > now);
+
+    if (nextClass) {
+        renderClasses(currentClasses, nextClass.id);
+    } else {
+        alert("No more classes for today!");
+    }
   }
 
   function showLoading() {
@@ -323,11 +343,8 @@
     const memberId = document.getElementById("member-input").value.trim();
     if (!jwt || !memberId) return;
     
-    // Save to memory
     cachedJwt = jwt;
     cachedMemberId = memberId;
-    
-    // Save to storage
     localStorage.setItem('life-jwt', jwt);
     localStorage.setItem('life-member-id', memberId);
 
@@ -361,12 +378,9 @@
   }
 
   buildThemeGrid();
-  
-  // Restore Theme
   const savedTheme = localStorage.getItem('timetable-theme');
   if (savedTheme) try { applyTheme(JSON.parse(savedTheme)); } catch(e) {}
 
-  // Restore Credentials
   const storedJwt = localStorage.getItem('life-jwt');
   const storedMemberId = localStorage.getItem('life-member-id');
 
