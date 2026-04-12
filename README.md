@@ -33,6 +33,16 @@ in `API documentation.md`.
 
 <img width="650" height="700" alt="Screenshot 2026-04-12 at 8 19 59 pm" src="https://github.com/user-attachments/assets/c395a593-3db5-476c-b394-ca55090319c0" />
 
+<img width="650" height="700" alt="Screenshot 2026-04-12 at 8 23 31 pm" src="https://github.com/user-attachments/assets/3810eb37-ca1a-4974-aa8e-ce2935870712" />
+
+<img width="650" height="700" alt="Screenshot 2026-04-12 at 8 24 16 pm" src="https://github.com/user-attachments/assets/7e262329-60cf-4da0-8deb-a4050a1efdf5" />
+
+<img width="650" height="700" alt="Screenshot 2026-04-12 at 8 24 28 pm" src="https://github.com/user-attachments/assets/17ff7a03-8892-48f9-800b-3fd948922544" />
+
+<img width="650" height="700" alt="Screenshot 2026-04-12 at 8 24 53 pm" src="https://github.com/user-attachments/assets/a68f8f71-2b01-4020-9205-f62e325816a4" />
+
+<img width="650" height="700" alt="Screenshot 2026-04-12 at 8 25 03 pm" src="https://github.com/user-attachments/assets/b2e08d40-6f6c-4ea7-8bdb-c83bdab6f5cd" />
+
 ---
 
 > **Disclaimer:** This project is not affiliated with, endorsed by, or 
