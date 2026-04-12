@@ -172,6 +172,17 @@
   let cachedMemberId = null;
   let currentClasses = []; // Store the fetched classes globally for searching
 
+ const savedTheme = localStorage.getItem('timetable-theme');
+  if (savedTheme) {
+    try { 
+      applyTheme(JSON.parse(savedTheme)); 
+    } catch(e) {
+      applyTheme(THEMES[0]); // Default to Light if error
+    }
+  } else {
+    applyTheme(THEMES[0]); // Default to Light if first time visiting
+  }
+ 
   // --- THEME LOGIC ---
   function applyTheme(t) {
     const r = document.documentElement.style;
