@@ -488,9 +488,20 @@
     document.getElementById("date-label").textContent = formatDateLabel(currentDate);
   }
 
-  function showError(msg) {
-    document.getElementById("content").innerHTML = `<div class="error-box">${msg}</div>`;
+function showError(msg) {
+  let displayMsg = msg;
+
+  if (msg && msg.toLowerCase().includes('invalid time value')) {
+    displayMsg = 'Expired session, try logging out';
   }
+
+  document.getElementById("content").innerHTML = `
+    <div class="error-box">${displayMsg}</div>
+    <div class="logout-wrap">
+      <button class="nav-btn" onclick="clearSavedData()">logout / clear keys</button>
+    </div>
+  `;
+}
 
   function hideLogin() {
     document.getElementById("login-screen").style.display = "none";
