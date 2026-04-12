@@ -7,35 +7,19 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #0e0f11;
-    --surface: #16181c;
-    --border: #2a2d35;
-    --text: #e8e9ec;
-    --muted: #5a5e6b;
-    --accent: #c8f060;
-    --accent-text: #0e0f11;
-  }
-
+  :root { --bg: #0e0f11; --surface: #16181c; --border: #2a2d35; --text: #e8e9ec; --muted: #5a5e6b; --accent: #c8f060; --accent-text: #0e0f11; }
   body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; padding: 48px 24px; transition: background 0.3s, color 0.3s; }
-
   header { max-width: 720px; margin: 0 auto 48px; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 24px; gap: 16px; flex-wrap: wrap; }
   .header-left h1 { font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1; letter-spacing: -0.02em; }
   .header-left h1 em { font-style: italic; color: var(--accent); }
   .header-left .date-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 8px; }
-
   .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
   .nav-btn { background: none; border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.75rem; padding: 8px 14px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.05em; }
   .nav-btn:hover, .nav-btn.active { border-color: var(--accent); color: var(--accent); }
-
   .theme-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.68rem; padding: 5px 10px; cursor: pointer; letter-spacing: 0.06em; transition: all 0.15s; }
   .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
-
   main { max-width: 720px; margin: 0 auto; }
-
-  /* Theme panel */
   .theme-panel { border: 1px solid var(--border); padding: 24px; margin-bottom: 32px; display: none; }
   .theme-panel.open { display: block; }
   .theme-panel h3 { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
@@ -46,34 +30,48 @@
   .theme-custom { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .theme-custom label { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
   .theme-custom input[type=color] { width: 100%; height: 36px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; padding: 2px; }
-  .theme-custom input[type=text] { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.72rem; padding: 8px 10px; outline: none; }
-  .theme-custom input[type=text]:focus { border-color: var(--accent); }
   .theme-apply { margin-top: 16px; background: var(--accent); color: var(--accent-text); border: none; font-family: 'DM Mono', monospace; font-size: 0.72rem; font-weight: 500; padding: 10px 20px; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; transition: opacity 0.15s; }
   .theme-apply:hover { opacity: 0.85; }
-
   .status { text-align: center; padding: 80px 0; color: var(--muted); font-size: 0.85rem; letter-spacing: 0.05em; }
   .status .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
   .error-box { border: 1px solid #ff4d4d44; background: #ff4d4d11; padding: 20px 24px; font-size: 0.78rem; color: #ff8080; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
 
-  .token-form { border: 1px solid var(--border); padding: 32px; margin-bottom: 32px; }
-  .token-form p { font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; line-height: 1.6; }
-  .token-form p a { color: var(--accent); text-decoration: none; }
-  .token-form p code { background: var(--surface); padding: 1px 5px; font-size: 0.7rem; }
-  .token-form label { display: block; font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; margin-top: 16px; }
-  .token-form input, .token-form textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.72rem; padding: 10px 12px; outline: none; transition: border-color 0.15s; }
-  .token-form textarea { resize: vertical; min-height: 70px; }
-  .token-form input:focus, .token-form textarea:focus { border-color: var(--accent); }
-  .token-form input::placeholder, .token-form textarea::placeholder { color: var(--muted); }
-  .token-form button { margin-top: 20px; background: var(--accent); color: var(--accent-text); border: none; font-family: 'DM Mono', monospace; font-size: 0.75rem; font-weight: 500; padding: 12px 24px; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; transition: opacity 0.15s; }
-  .token-form button:hover { opacity: 0.85; }
+  /* Login screen */
+  .login-screen { border: 1px solid var(--border); padding: 36px; margin-bottom: 32px; }
+  .login-screen h2 { font-family: 'Fraunces', serif; font-weight: 300; font-size: 1.4rem; margin-bottom: 8px; letter-spacing: -0.01em; }
+  .login-screen .subtitle { font-size: 0.72rem; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+  .login-big-btn { display: block; width: 100%; padding: 18px; background: var(--accent); color: var(--accent-text); border: none; font-family: 'DM Mono', monospace; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: opacity 0.15s; margin-bottom: 12px; text-align: center; text-decoration: none; }
+  .login-big-btn:hover { opacity: 0.85; }
+  .login-divider { display: flex; align-items: center; gap: 12px; margin: 24px 0; }
+  .login-divider span { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+  .login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .bookmarklet-box { border: 1px solid var(--border); padding: 20px; background: var(--surface); }
+  .bookmarklet-box p { font-size: 0.72rem; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+  .bookmarklet-box p strong { color: var(--text); }
+  .bookmarklet-link { display: inline-block; padding: 10px 18px; border: 1px dashed var(--accent); color: var(--accent); font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.05em; text-decoration: none; cursor: grab; transition: background 0.15s; margin-bottom: 12px; }
+  .bookmarklet-link:hover { background: var(--accent); color: var(--accent-text); }
+  .bookmarklet-steps { list-style: none; counter-reset: bsteps; }
+  .bookmarklet-steps li { counter-increment: bsteps; display: flex; gap: 10px; font-size: 0.7rem; color: var(--muted); padding: 6px 0; line-height: 1.5; }
+  .bookmarklet-steps li::before { content: counter(bsteps); min-width: 18px; height: 18px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+  .bookmarklet-steps li a { color: var(--accent); text-decoration: none; }
+  .manual-toggle { background: none; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.68rem; cursor: pointer; letter-spacing: 0.05em; text-decoration: underline; margin-top: 16px; display: block; }
+  .manual-toggle:hover { color: var(--text); }
+  .manual-fields { display: none; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px; }
+  .manual-fields.open { display: block; }
+  .manual-fields label { display: block; font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; margin-top: 14px; }
+  .manual-fields input, .manual-fields textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.72rem; padding: 10px 12px; outline: none; transition: border-color 0.15s; }
+  .manual-fields textarea { resize: vertical; min-height: 70px; }
+  .manual-fields input:focus, .manual-fields textarea:focus { border-color: var(--accent); }
+  .manual-fields input::placeholder, .manual-fields textarea::placeholder { color: var(--muted); }
+  .manual-fields button { margin-top: 14px; background: var(--accent); color: var(--accent-text); border: none; font-family: 'DM Mono', monospace; font-size: 0.75rem; font-weight: 500; padding: 12px 24px; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; transition: opacity 0.15s; }
+  .manual-fields button:hover { opacity: 0.85; }
 
   .empty-day { text-align: center; padding: 60px 0; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.05em; }
   .empty-day .big { font-family: 'Fraunces', serif; font-size: 4rem; color: var(--border); display: block; margin-bottom: 12px; }
-
   .class-list { display: flex; flex-direction: column; }
   .class-card { display: grid; grid-template-columns: 56px 4px 1fr auto; gap: 0 16px; align-items: start; padding: 20px 0; border-bottom: 1px solid var(--border); animation: fadeUp 0.3s ease both; }
+  .class-card.next-up { border: 1px solid var(--accent); padding: 20px; margin: 4px 0; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   .class-card:last-child { border-bottom: none; }
   .class-time { font-size: 0.68rem; color: var(--muted); line-height: 1.6; text-align: right; padding-top: 3px; }
@@ -83,6 +81,8 @@
   .class-meta span { display: flex; align-items: center; gap: 5px; }
   .class-period { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; padding-top: 4px; white-space: nowrap; }
   .now-indicator { font-size: 0.62rem; background: var(--accent); color: var(--accent-text); padding: 2px 6px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; margin-left: 8px; vertical-align: middle; }
+  .next-indicator { font-size: 0.62rem; background: var(--text); color: var(--bg); padding: 2px 6px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; margin-left: 8px; vertical-align: middle; }
+  .logout-wrap { text-align: center; margin-top: 40px; }
 </style>
 </head>
 <body>
@@ -93,12 +93,13 @@
     <div class="date-label" id="date-label">—</div>
   </div>
   <div class="header-right">
- <div class="nav-buttons">
-  <button class="nav-btn" onclick="findNextClass()">⚡ next class</button> <button class="nav-btn" onclick="changeDay(-1)">← prev</button>
-  <button class="nav-btn active" onclick="goToday()">today</button>
-  <button class="nav-btn" onclick="changeDay(1)">next →</button>
-  <button class="theme-btn" onclick="toggleThemePanel()">⚙ theme</button>
-</div>
+    <div class="nav-buttons">
+      <button class="nav-btn" onclick="findNextClass()">⚡ next class</button>
+      <button class="nav-btn" onclick="changeDay(-1)">← prev</button>
+      <button class="nav-btn active" onclick="goToday()">today</button>
+      <button class="nav-btn" onclick="changeDay(1)">next →</button>
+      <button class="theme-btn" onclick="toggleThemePanel()">⚙ theme</button>
+    </div>
   </div>
 </header>
 
@@ -108,48 +109,45 @@
     <div class="theme-grid" id="theme-grid"></div>
     <h3 style="margin-bottom:14px">Custom colours</h3>
     <div class="theme-custom">
-      <div>
-        <label>Background</label>
-        <input type="color" id="c-bg" value="#0e0f11">
-      </div>
-      <div>
-        <label>Surface</label>
-        <input type="color" id="c-surface" value="#16181c">
-      </div>
-      <div>
-        <label>Text</label>
-        <input type="color" id="c-text" value="#e8e9ec">
-      </div>
-      <div>
-        <label>Accent</label>
-        <input type="color" id="c-accent" value="#c8f060">
-      </div>
-      <div>
-        <label>Border</label>
-        <input type="color" id="c-border" value="#2a2d35">
-      </div>
-      <div>
-        <label>Muted</label>
-        <input type="color" id="c-muted" value="#5a5e6b">
-      </div>
+      <div><label>Background</label><input type="color" id="c-bg"></div>
+      <div><label>Surface</label><input type="color" id="c-surface"></div>
+      <div><label>Text</label><input type="color" id="c-text"></div>
+      <div><label>Accent</label><input type="color" id="c-accent"></div>
+      <div><label>Border</label><input type="color" id="c-border"></div>
+      <div><label>Muted</label><input type="color" id="c-muted"></div>
     </div>
     <button class="theme-apply" onclick="applyCustomTheme()">Apply custom theme</button>
   </div>
 
-  <div class="token-form" id="token-form">
-    <p>
-      Go to <a href="https://caulfieldlife.com.au" target="_blank">caulfieldlife.com.au</a> and log in.
-      Open DevTools → <strong>Network</strong> → filter <code>life-api</code> → reload →
-      click the <strong>ClassData</strong> POST → <strong>Request Headers</strong> →
-      copy the value of <code>x-community-token</code>.
-    </p>
-    <label>x-community-token (from ClassData request headers)</label>
-    <textarea id="jwt-input" placeholder="eyJ0eXA..."></textarea>
-    <label>Member ID — DevTools → Network → reload → ClassData POST → Response → Id. Make sure you pick the second ID, because the first one doesn't work.</label>
-    <input id="member-input">
-    <br>
-    <button onclick="loadWithToken()">Load timetable</button>
+  <div class="login-screen" id="login-screen">
+    <h2>Connect your timetable</h2>
+    <p class="subtitle">Two ways to log in. The bookmarklet is easiest — set it up once and use it every time.</p>
+
+    <div class="bookmarklet-box">
+      <p><strong>Option 1 — Bookmarklet (recommended, one-time setup)</strong><br>Drag the button below to your bookmarks bar. Then whenever your session expires, just go to CaulfieldLife and click it.</p>
+      <a class="bookmarklet-link" id="bookmarklet-anchor" href="#">⚑ Connect to Timetable</a>
+      <ol class="bookmarklet-steps">
+        <li>Drag the button above to your browser's bookmarks bar</li>
+        <li>Go to <a href="https://caulfieldlife.com.au" target="_blank">caulfieldlife.com.au</a> and log in</li>
+        <li>Click the <strong>Connect to Timetable</strong> bookmark — it will bring you back here automatically logged in</li>
+      </ol>
+    </div>
+
+    <div class="login-divider"><span>or</span></div>
+
+    <button class="manual-toggle" onclick="toggleManual()">enter token manually ↓</button>
+    <div class="manual-fields" id="manual-fields">
+      <p style="font-size:0.72rem;color:var(--muted);line-height:1.6;margin-bottom:4px">
+        Go to <a href="https://caulfieldlife.com.au" target="_blank" style="color:var(--accent)">caulfieldlife.com.au</a>, log in, open DevTools → Network → filter <code style="background:var(--surface);padding:1px 4px">ClassData</code> → reload → click the request → Request Headers → copy <code style="background:var(--surface);padding:1px 4px">x-community-token</code>.
+      </p>
+      <label>x-community-token</label>
+      <textarea id="jwt-input" placeholder="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."></textarea>
+      <label>Member ID — same request → Payload → variables → memberId (second ID if two)</label>
+      <input id="member-input" placeholder="cm2mkjjy...">
+      <button onclick="loadWithToken()">Load timetable</button>
+    </div>
   </div>
+
   <div id="content"></div>
 </main>
 
@@ -163,27 +161,39 @@
   };
 
   const THEMES = [
-    { name: "Light",    bg: "#ffffff", surface: "#f0f0f0", border: "#cccccc", text: "#000000", muted: "#888888", accent: "#000000", accentText: "#ffffff" },
-    { name: "Dark",    bg: "#0f0f0f", surface: "#404040", border: "#f0f0f0", text: "#b5b5b5", muted: "#f0f0f0", accent: "#ffffff", accentText: "#0e0f11" },
+    { name: "Dark",   bg: "#0e0f11", surface: "#16181c", border: "#2a2d35", text: "#e8e9ec", muted: "#5a5e6b", accent: "#c8f060", accentText: "#0e0f11" },
+    { name: "Light",  bg: "#f5f5f2", surface: "#eaeae7", border: "#d4d4ce", text: "#1a1a18", muted: "#8a8a82", accent: "#2d6a2d", accentText: "#f5f5f2" },
+    { name: "Ocean",  bg: "#08131e", surface: "#0d1f2d", border: "#1a3348", text: "#d6eaf8", muted: "#4a7a9b", accent: "#4fc3f7", accentText: "#08131e" },
+    { name: "Rose",   bg: "#1a0f10", surface: "#261518", border: "#3d2025", text: "#f5e6e8", muted: "#7a4a50", accent: "#f48fb1", accentText: "#1a0f10" },
+    { name: "Slate",  bg: "#f8f9fa", surface: "#eef0f2", border: "#ced4da", text: "#212529", muted: "#6c757d", accent: "#4361ee", accentText: "#f8f9fa" },
+    { name: "Forest", bg: "#0d1a0e", surface: "#132116", border: "#1e3320", text: "#d8f0d8", muted: "#4a7a50", accent: "#69f0ae", accentText: "#0d1a0e" },
+    { name: "Sunset", bg: "#1a0e08", surface: "#261508", border: "#3d2510", text: "#fce8d8", muted: "#8a5a3a", accent: "#ff8a65", accentText: "#1a0e08" },
+    { name: "Mono",   bg: "#ffffff", surface: "#f0f0f0", border: "#cccccc", text: "#000000", muted: "#888888", accent: "#000000", accentText: "#ffffff" },
   ];
 
   let currentDate = new Date();
   let cachedJwt = null;
   let cachedMemberId = null;
-  let currentClasses = []; // Store the fetched classes globally for searching
+  let currentClasses = [];
 
- const savedTheme = localStorage.getItem('timetable-theme');
-  if (savedTheme) {
-    try { 
-      applyTheme(JSON.parse(savedTheme)); 
-    } catch(e) {
-      applyTheme(THEMES[0]); // Default to Light if error
-    }
-  } else {
-    applyTheme(THEMES[0]); // Default to Light if first time visiting
-  }
- 
-  // --- THEME LOGIC ---
+  // Build the bookmarklet href dynamically using this page's URL
+  (function() {
+    const timetableUrl = window.location.href.split('?')[0];
+    const code = `(function(){
+      var jwt=localStorage.getItem('jwt');
+      if(!jwt){alert('Please log into CaulfieldLife first.');return;}
+      fetch('https://life-api.caulfieldlife.com.au/',{method:'POST',headers:{'Content-Type':'application/json','authorization':'Bearer X-ae97a16a-3e28-4365:Y-53e74b38-8a53-4ef7','origin':'https://caulfieldlife.com.au','referer':'https://caulfieldlife.com.au/','x-community-token':jwt},body:JSON.stringify({operationName:'GetSessionByJwt',variables:{jwtToken:jwt},query:'query GetSessionByJwt($jwtToken:String!){sessionByJwt(jwtIdToken:$jwtToken){member{id}}}'})})
+      .then(r=>r.json())
+      .then(function(d){
+        var mid=d&&d.data&&d.data.sessionByJwt&&d.data.sessionByJwt.member&&d.data.sessionByJwt.member.id;
+        if(!mid){alert('Could not get member ID. Try reloading CaulfieldLife.');return;}
+        window.location='${timetableUrl}?jwt='+encodeURIComponent(jwt)+'&mid='+encodeURIComponent(mid);
+      })
+      .catch(function(){alert('Connection failed. Make sure you are logged into CaulfieldLife.');});
+    })();`;
+    document.getElementById('bookmarklet-anchor').href = 'javascript:' + code;
+  })();
+
   function applyTheme(t) {
     const r = document.documentElement.style;
     r.setProperty('--bg', t.bg);
@@ -197,9 +207,16 @@
     document.querySelectorAll('.theme-swatch').forEach((el, i) => {
       el.classList.toggle('active', THEMES[i]?.name === t.name);
     });
+    document.getElementById('c-bg').value = t.bg;
+    document.getElementById('c-surface').value = t.surface;
+    document.getElementById('c-text').value = t.text;
+    document.getElementById('c-accent').value = t.accent;
+    document.getElementById('c-border').value = t.border;
+    document.getElementById('c-muted').value = t.muted;
   }
 
   function applyCustomTheme() {
+    const accent = document.getElementById('c-accent').value;
     applyTheme({
       name: 'Custom',
       bg: document.getElementById('c-bg').value,
@@ -207,8 +224,8 @@
       border: document.getElementById('c-border').value,
       text: document.getElementById('c-text').value,
       muted: document.getElementById('c-muted').value,
-      accent: document.getElementById('c-accent').value,
-      accentText: isLight(document.getElementById('c-accent').value) ? '#0e0f11' : '#f5f5f2',
+      accent,
+      accentText: isLight(accent) ? '#0e0f11' : '#f5f5f2',
     });
   }
 
@@ -218,8 +235,7 @@
   }
 
   function buildThemeGrid() {
-    const grid = document.getElementById('theme-grid');
-    grid.innerHTML = THEMES.map((t, i) => `
+    document.getElementById('theme-grid').innerHTML = THEMES.map((t, i) => `
       <div class="theme-swatch" onclick="applyTheme(THEMES[${i}])">
         <div class="swatch-dot" style="background:${t.accent};border:2px solid ${t.border}"></div>
         ${t.name}
@@ -231,7 +247,10 @@
     document.getElementById('theme-panel').classList.toggle('open');
   }
 
-  // --- DATA LOGIC ---
+  function toggleManual() {
+    document.getElementById('manual-fields').classList.toggle('open');
+  }
+
   function formatDateLabel(d) {
     return d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   }
@@ -240,7 +259,6 @@
     const y = date.toLocaleString('en-AU', { timeZone: 'Australia/Melbourne', year: 'numeric' });
     const m = date.toLocaleString('en-AU', { timeZone: 'Australia/Melbourne', month: '2-digit' });
     const d = date.toLocaleString('en-AU', { timeZone: 'Australia/Melbourne', day: '2-digit' });
-
     const toUTC = localStr => {
       const asIfUTC = new Date(localStr + 'Z');
       const probe = new Date();
@@ -248,7 +266,6 @@
                        - new Date(probe.toLocaleString('en-AU', { timeZone: 'UTC', hour12: false }).replace(',',''));
       return new Date(asIfUTC.getTime() - melbOffset).toISOString();
     };
-
     return {
       startTime: toUTC(`${y}-${m}-${d}T00:00:00`),
       endTime:   toUTC(`${y}-${m}-${d}T23:59:59.999`),
@@ -299,14 +316,14 @@
     el.innerHTML = `<div class="class-list">${classes.map((c, i) => {
       const isNext = c.id === highlightId;
       return `
-      <div class="class-card" id="class-${c.id}" style="animation-delay:${i * 0.05}s; ${isNext ? 'border: 1px solid var(--accent); padding: 20px;' : ''}">
+      <div class="class-card${isNext ? ' next-up' : ''}" id="class-${c.id}" style="animation-delay:${i * 0.05}s">
         <div class="class-time">${formatTime(c.startTime)}<br>${formatTime(c.endTime)}</div>
         <div class="class-bar" style="background:${c.colour || 'var(--muted)'}"></div>
         <div class="class-body">
           <div class="class-subject">
             ${c.description || c.title}
             ${isNow(c.startTime, c.endTime) ? '<span class="now-indicator">now</span>' : ''}
-            ${isNext ? '<span class="now-indicator" style="background:var(--text); color:var(--bg)">NEXT UP</span>' : ''}
+            ${isNext ? '<span class="next-indicator">next up</span>' : ''}
           </div>
           <div class="class-meta">
             ${c.room ? `<span>📍 ${c.room}</span>` : ''}
@@ -314,30 +331,24 @@
           </div>
         </div>
         <div class="class-period">${c.periodName !== null && c.periodName !== '' ? `P${c.periodName}` : ''}</div>
-      </div>
-    `}).join('')}</div>
-    <center><button class="nav-btn" style="margin-top:40px; opacity:0.5" onclick="clearSavedData()">Logout / Clear Keys</button></center>`;
-    
+      </div>`;
+    }).join('')}</div>
+    <div class="logout-wrap"><button class="nav-btn" style="opacity:0.5" onclick="clearSavedData()">logout / clear keys</button></div>`;
     if (highlightId) {
-        document.getElementById(`class-${highlightId}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById(`class-${highlightId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 
   function findNextClass() {
     const now = new Date();
     if (currentDate.toDateString() !== now.toDateString()) {
-        goToday();
-        setTimeout(findNextClass, 800);
-        return;
+      goToday();
+      setTimeout(findNextClass, 800);
+      return;
     }
-
-    const nextClass = currentClasses.find(c => new Date(c.startTime) > now);
-
-    if (nextClass) {
-        renderClasses(currentClasses, nextClass.id);
-    } else {
-        alert("No more classes for today!");
-    }
+    const next = currentClasses.find(c => new Date(c.startTime) > now);
+    if (next) { renderClasses(currentClasses, next.id); }
+    else { alert("No more classes today!"); }
   }
 
   function showLoading() {
@@ -349,21 +360,27 @@
     document.getElementById("content").innerHTML = `<div class="error-box">${msg}</div>`;
   }
 
-  async function loadWithToken() {
-    const jwt = document.getElementById("jwt-input").value.trim();
-    const memberId = document.getElementById("member-input").value.trim();
-    if (!jwt || !memberId) return;
-    
+  function hideLogin() {
+    document.getElementById("login-screen").style.display = "none";
+  }
+
+  async function startSession(jwt, memberId) {
     cachedJwt = jwt;
     cachedMemberId = memberId;
     localStorage.setItem('life-jwt', jwt);
     localStorage.setItem('life-member-id', memberId);
-
+    hideLogin();
     showLoading();
     try {
       renderClasses(await fetchClasses(cachedJwt, cachedMemberId, currentDate));
-      document.getElementById("token-form").style.display = "none";
     } catch(e) { showError(e.message); }
+  }
+
+  async function loadWithToken() {
+    const jwt = document.getElementById("jwt-input").value.trim();
+    const memberId = document.getElementById("member-input").value.trim();
+    if (!jwt || !memberId) return;
+    await startSession(jwt, memberId);
   }
 
   async function loadTimetable() {
@@ -388,18 +405,31 @@
     location.reload();
   }
 
+  // Init
   buildThemeGrid();
   const savedTheme = localStorage.getItem('timetable-theme');
-  if (savedTheme) try { applyTheme(JSON.parse(savedTheme)); } catch(e) {}
+  if (savedTheme) {
+    try { applyTheme(JSON.parse(savedTheme)); } catch(e) { applyTheme(THEMES[0]); }
+  } else {
+    applyTheme(THEMES[0]);
+  }
 
-  const storedJwt = localStorage.getItem('life-jwt');
-  const storedMemberId = localStorage.getItem('life-member-id');
-
-  if (storedJwt && storedMemberId) {
-    cachedJwt = storedJwt;
-    cachedMemberId = storedMemberId;
-    document.getElementById("token-form").style.display = "none";
-    loadTimetable();
+  // Check for bookmarklet redirect params
+  const params = new URLSearchParams(window.location.search);
+  const paramJwt = params.get('jwt');
+  const paramMid = params.get('mid');
+  if (paramJwt && paramMid) {
+    history.replaceState({}, '', window.location.pathname);
+    startSession(paramJwt, paramMid);
+  } else {
+    const storedJwt = localStorage.getItem('life-jwt');
+    const storedMemberId = localStorage.getItem('life-member-id');
+    if (storedJwt && storedMemberId) {
+      cachedJwt = storedJwt;
+      cachedMemberId = storedMemberId;
+      hideLogin();
+      loadTimetable();
+    }
   }
 
   document.getElementById("date-label").textContent = formatDateLabel(currentDate);
