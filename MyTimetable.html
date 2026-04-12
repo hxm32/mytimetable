@@ -324,7 +324,6 @@
     const data = JSON.parse(await res.text());
     if (data?.errors?.length) throw new Error(JSON.stringify(data.errors, null, 2));
     const classes = data?.data?.classes ?? [];
-    // Cache for search
     const key = date.toDateString();
     allFetchedClasses[key] = classes;
     return classes;
