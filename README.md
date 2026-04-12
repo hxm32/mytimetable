@@ -5,3 +5,5 @@ A unofficial version of CaulfieldLife. This version loads faster and has customi
 Alternatively, you can download `MyTimetable.html` and open it with any browser. The this method usually doesn't support the bookmarklet login.
 
 Again, this is a unofficial project. If something goes wrong, please contact me instead of the school. My disocrd username is `hxm32`. Read the instructions on the code/website before contacting me, it usually explains how to fix most of the problems.
+
+I've also documented what i've discovered about the API requests that CaulfieldLife uses in `API documentation.md`.
