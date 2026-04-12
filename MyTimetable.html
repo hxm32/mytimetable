@@ -89,7 +89,6 @@
   .class-card:last-child { border-bottom: none; }
   .class-card.next-up { border: 1px solid var(--accent); padding: 18px; margin: 4px 0; }
 
-  /* Active (currently in progress) class highlight */
   .class-card.active-class { background: color-mix(in srgb, var(--accent) 12%, transparent); border-left: none; padding-left: 0; position: relative; }
   .class-card.active-class .class-bar { box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent); }
 
@@ -97,6 +96,7 @@
 
   .class-bar { width: 4px; border-radius: 2px; min-height: 48px; align-self: stretch; }
   .class-body { flex: 1; }
+  .class-period { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; }
   .class-subject { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.05rem; line-height: 1.2; margin-bottom: 8px; letter-spacing: -0.01em; }
   .class-details { display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 0.7rem; color: var(--muted); }
   .class-details span { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
@@ -104,7 +104,6 @@
   .now-indicator { font-size: 0.62rem; background: var(--accent); color: var(--accent-text); padding: 2px 6px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; margin-left: 8px; vertical-align: middle; }
   .next-indicator { font-size: 0.62rem; background: var(--text); color: var(--bg); padding: 2px 6px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; margin-left: 8px; vertical-align: middle; }
 
-  /* Progress bar inside active class */
   .class-progress { height: 2px; background: var(--border); margin-top: 10px; border-radius: 1px; overflow: hidden; }
   .class-progress-fill { height: 100%; background: var(--accent); border-radius: 1px; transition: width 1s linear; }
 
@@ -215,7 +214,6 @@
   let allFetchedClasses = {};
   let progressInterval = null;
 
-  // Bookmarklet
   (function() {
     const timetableUrl = window.location.href.split('?')[0];
     const code = `(function(){
@@ -393,6 +391,7 @@
     const isNext = c.id === highlightId;
     const active = isNow(c.startTime, c.endTime);
     const dateStr = showDate ? `<span class="detail-date">📅 ${formatDateShort(c.startTime)}</span>` : '';
+    const periodStr = (c.periodName !== null && c.periodName !== '') ? `<div class="class-period">Period ${c.periodName}</div>` : '';
     const progressBar = active ? `
       <div class="class-progress">
         <div class="class-progress-fill" data-start="${c.startTime}" data-end="${c.endTime}" style="width:${getProgress(c.startTime, c.endTime)}%"></div>
@@ -401,6 +400,7 @@
     <div class="class-card${isNext ? ' next-up' : ''}${active ? ' active-class' : ''}" id="class-${c.id}" style="animation-delay:${i * 0.04}s">
       <div class="class-bar" style="background:${c.colour || 'var(--muted)'}"></div>
       <div class="class-body">
+        ${periodStr}
         <div class="class-subject">
           ${c.description || c.title}
           ${active ? '<span class="now-indicator">now</span>' : ''}
@@ -411,7 +411,6 @@
           ${dateStr}
           ${c.room ? `<span>📍 ${c.room}</span>` : ''}
           ${c.teacherName ? `<span>👤 ${c.teacherName}</span>` : ''}
-          ${c.periodName !== null && c.periodName !== '' ? `<span>Period ${c.periodName}</span>` : ''}
         </div>
         ${progressBar}
       </div>
@@ -430,7 +429,6 @@
     if (highlightId) {
       document.getElementById(`class-${highlightId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-    // Update progress bars every 30 seconds
     if (classes.some(c => isNow(c.startTime, c.endTime))) {
       progressInterval = setInterval(updateProgressBars, 30000);
     }
@@ -543,7 +541,6 @@
     location.reload();
   }
 
-  // Init
   buildThemeGrid();
   const savedTheme = localStorage.getItem('timetable-theme');
   if (savedTheme) {
