@@ -145,7 +145,7 @@
     </p>
     <label>x-community-token (from ClassData request headers)</label>
     <textarea id="jwt-input" placeholder="eyJ0eXA..."></textarea>
-    <label>Member ID — DevTools → Network → reload → ClassData POST → Response → Id. Make sure you pick the second ID, because the first one doesn't work.</label>
+    <label>Member ID — DevTools → Network → reload → ClassData POST → Response → Id</label>
     <input id="member-input">
     <br>
     <button onclick="loadWithToken()">Load timetable</button>
@@ -171,6 +171,7 @@
   let cachedJwt = null;
   let cachedMemberId = null;
 
+  // --- THEME LOGIC ---
   function applyTheme(t) {
     const r = document.documentElement.style;
     r.setProperty('--bg', t.bg);
@@ -184,7 +185,6 @@
     document.querySelectorAll('.theme-swatch').forEach((el, i) => {
       el.classList.toggle('active', THEMES[i]?.name === t.name);
     });
-    // Sync color pickers
     document.getElementById('c-bg').value = t.bg;
     document.getElementById('c-surface').value = t.surface;
     document.getElementById('c-text').value = t.text;
@@ -214,7 +214,7 @@
   function buildThemeGrid() {
     const grid = document.getElementById('theme-grid');
     grid.innerHTML = THEMES.map((t, i) => `
-      <div class="theme-swatch${i === 0 ? ' active' : ''}" onclick="applyTheme(THEMES[${i}])">
+      <div class="theme-swatch" onclick="applyTheme(THEMES[${i}])">
         <div class="swatch-dot" style="background:${t.accent};border:2px solid ${t.border}"></div>
         ${t.name}
       </div>
@@ -225,6 +225,7 @@
     document.getElementById('theme-panel').classList.toggle('open');
   }
 
+  // --- DATA LOGIC ---
   function formatDateLabel(d) {
     return d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   }
@@ -304,7 +305,8 @@
         </div>
         <div class="class-period">${c.periodName !== null && c.periodName !== '' ? `P${c.periodName}` : ''}</div>
       </div>
-    `).join('')}</div>`;
+    `).join('')}</div>
+    <center><button class="nav-btn" style="margin-top:40px; opacity:0.5" onclick="clearSavedData()">Logout / Clear Keys</button></center>`;
   }
 
   function showLoading() {
@@ -320,8 +322,15 @@
     const jwt = document.getElementById("jwt-input").value.trim();
     const memberId = document.getElementById("member-input").value.trim();
     if (!jwt || !memberId) return;
+    
+    // Save to memory
     cachedJwt = jwt;
     cachedMemberId = memberId;
+    
+    // Save to storage
+    localStorage.setItem('life-jwt', jwt);
+    localStorage.setItem('life-member-id', memberId);
+
     showLoading();
     try {
       renderClasses(await fetchClasses(cachedJwt, cachedMemberId, currentDate));
@@ -330,7 +339,7 @@
   }
 
   async function loadTimetable() {
-    if (!cachedJwt) return;
+    if (!cachedJwt || !cachedMemberId) return;
     showLoading();
     try {
       renderClasses(await fetchClasses(cachedJwt, cachedMemberId, currentDate));
@@ -345,9 +354,29 @@
 
   function goToday() { currentDate = new Date(); loadTimetable(); }
 
+  function clearSavedData() {
+    localStorage.removeItem('life-jwt');
+    localStorage.removeItem('life-member-id');
+    location.reload();
+  }
+
   buildThemeGrid();
-  const saved = localStorage.getItem('timetable-theme');
-  if (saved) try { applyTheme(JSON.parse(saved)); } catch(e) {}
+  
+  // Restore Theme
+  const savedTheme = localStorage.getItem('timetable-theme');
+  if (savedTheme) try { applyTheme(JSON.parse(savedTheme)); } catch(e) {}
+
+  // Restore Credentials
+  const storedJwt = localStorage.getItem('life-jwt');
+  const storedMemberId = localStorage.getItem('life-member-id');
+
+  if (storedJwt && storedMemberId) {
+    cachedJwt = storedJwt;
+    cachedMemberId = storedMemberId;
+    document.getElementById("token-form").style.display = "none";
+    loadTimetable();
+  }
+
   document.getElementById("date-label").textContent = formatDateLabel(currentDate);
 </script>
 </body>
