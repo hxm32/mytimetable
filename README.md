@@ -8,7 +8,7 @@ class search, and more.
 - Search classes by subject, teacher, or room across a 5-week window
 - Active class highlight with live progress bar
 - Next class button to easily know what you have next
-- Bookmarklet login — no DevTools required after initial setup
+- Bookmarklet login — no DevTools required
 
 ### To use, visit https://mytimetable.free.nf/
 
