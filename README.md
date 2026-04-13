@@ -51,4 +51,5 @@ in `API documentation.md`.
 > This tool only accesses data that the authenticated user is already 
 > authorised to view. No school infrastructure is used — all processing 
 > happens locally in the user's browser. Use at your own risk. If something 
-> breaks, contact me (Discord: `hxm32`), not the school.
+> breaks, contact me (Discord: `hxm32`), not the school. Since this is an
+> unofficial product, it frequently breaks. Do not expect this to be reliable.
