@@ -219,8 +219,6 @@
     return isNaN(d.getTime()) ? null : d;
   }
 
-  // timetableUrl is captured at page-load time so the bookmarklet always
-  // redirects back to this page, not to whatever site it's clicked on.
   (function() {
     const timetableUrl = window.location.href.split('?')[0];
     const code = `(function(){
