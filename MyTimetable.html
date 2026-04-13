@@ -218,7 +218,7 @@
     const d = new Date(iso);
     return isNaN(d.getTime()) ? null : d;
   }
-
+// I don't know why, but the whole bookmarklet login breaks whenever I change one of the messages here. I suggest you don't touch anything related to the bookmarklet
   (function() {
     const timetableUrl = window.location.href.split('?')[0];
     const code = `(function(){
@@ -262,10 +262,10 @@
       };
 
       setTimeout(function(){
-        if(!found){alert('No token detected. Try clicking on the bookmark again and view another day's classes');}
+        if(!found){alert('No token detected. Try scrolling the timetable on CaulfieldLife to trigger a request, then click the bookmark again.');}
       },15000);
 
-      alert('Token interceptor active. Now browse CaulfieldLife normally (e.g. click on tomorrow's classes) and you will be redirected automatically.');
+      alert('Token interceptor active. Now browse CaulfieldLife normally (e.g. click on My Timetable) and you will be redirected automatically.');
     })();`;
     document.getElementById('bookmarklet-anchor').href = 'javascript:' + code;
   })();
