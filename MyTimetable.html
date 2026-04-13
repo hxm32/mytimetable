@@ -40,7 +40,6 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .error-box { border: 1px solid #ff4d4d44; background: #ff4d4d11; padding: 20px 24px; font-size: 0.78rem; color: #c0392b; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
 
-  /* Login */
   .login-screen { border: 1px solid var(--border); padding: 36px; margin-bottom: 32px; }
   .login-screen h2 { font-family: 'Fraunces', serif; font-weight: 300; font-size: 1.4rem; margin-bottom: 8px; letter-spacing: -0.01em; }
   .login-screen .subtitle { font-size: 0.72rem; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
@@ -68,7 +67,6 @@
   .manual-fields button { margin-top: 14px; background: var(--accent); color: var(--accent-text); border: none; font-family: 'DM Mono', monospace; font-size: 0.75rem; font-weight: 500; padding: 12px 24px; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; transition: opacity 0.15s; }
   .manual-fields button:hover { opacity: 0.85; }
 
-  /* Search */
   .search-bar { display: none; margin-bottom: 32px; position: relative; }
   .search-bar.visible { display: block; }
   .search-bar input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.82rem; padding: 12px 16px 12px 40px; outline: none; transition: border-color 0.15s; }
@@ -80,7 +78,6 @@
   .search-clear.visible { display: block; }
   .search-clear:hover { color: var(--text); }
 
-  /* Classes */
   .empty-day { text-align: center; padding: 60px 0; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.05em; }
   .empty-day .big { font-family: 'Fraunces', serif; font-size: 4rem; color: var(--border); display: block; margin-bottom: 12px; }
   .class-list { display: flex; flex-direction: column; }
@@ -88,7 +85,6 @@
   .class-card { display: grid; grid-template-columns: 4px 1fr; gap: 0 16px; align-items: start; padding: 18px 0; border-bottom: 1px solid var(--border); animation: fadeUp 0.3s ease both; transition: background 0.2s; }
   .class-card:last-child { border-bottom: none; }
   .class-card.next-up { border: 1px solid var(--accent); padding: 18px; margin: 4px 0; }
-
   .class-card.active-class { background: color-mix(in srgb, var(--accent) 12%, transparent); border-left: none; padding-left: 0; position: relative; }
   .class-card.active-class .class-bar { box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent); }
 
@@ -157,7 +153,8 @@
       <ol class="bookmarklet-steps">
         <li>Drag the button above to your browser's bookmarks bar. If you can't find it, press Command + Shift + B (Mac) or Ctrl + Shift + B (Windows) to show it in Chrome.</li>
         <li>Go to <a href="https://caulfieldlife.com.au" target="_blank">caulfieldlife.com.au</a> and log in</li>
-        <li>Click the <strong>Connect to Timetable</strong> bookmark — it will bring you back here automatically logged in</li>
+        <li>Click the <strong>Connect to Timetable</strong> bookmark — a message will appear saying the interceptor is active</li>
+        <li>Click on <strong>My Timetable</strong> in CaulfieldLife to trigger a network request — you'll be redirected here automatically</li>
       </ol>
     </div>
     <div class="login-divider"><span>or</span></div>
@@ -181,6 +178,9 @@
   </div>
   <div id="search-results-header" class="search-results-header" style="display:none"></div>
   <div id="content"></div>
+  <div class="logout-wrap" id="logout-wrap" style="display:none">
+    <button class="nav-btn" style="opacity:0.5" onclick="clearSavedData()">logout / clear keys</button>
+  </div>
 </main>
 
 <footer>
@@ -214,19 +214,60 @@
   let allFetchedClasses = {};
   let progressInterval = null;
 
+  function safeDate(iso) {
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // timetableUrl is captured at page-load time so the bookmarklet always
+  // redirects back to this page, not to whatever site it's clicked on.
   (function() {
     const timetableUrl = window.location.href.split('?')[0];
     const code = `(function(){
-      var jwt=localStorage.getItem('jwt');
-      if(!jwt){alert('Please log into CaulfieldLife first.');return;}
-      fetch('https://life-api.caulfieldlife.com.au/',{method:'POST',headers:{'Content-Type':'application/json','authorization':'Bearer X-ae97a16a-3e28-4365:Y-53e74b38-8a53-4ef7','origin':'https://caulfieldlife.com.au','referer':'https://caulfieldlife.com.au/','x-community-token':jwt},body:JSON.stringify({operationName:'GetSessionByJwt',variables:{jwtToken:jwt},query:'query GetSessionByJwt($jwtToken:String!){sessionByJwt(jwtIdToken:$jwtToken){member{id}}}'})})
-      .then(r=>r.json())
-      .then(function(d){
-        var mid=d&&d.data&&d.data.sessionByJwt&&d.data.sessionByJwt.member&&d.data.sessionByJwt.member.id;
-        if(!mid){alert('Could not get member ID. Try reloading CaulfieldLife.');return;}
+      var found=null;
+      var origOpen=XMLHttpRequest.prototype.open;
+      var origSend=XMLHttpRequest.prototype.send;
+      var origSetHeader=XMLHttpRequest.prototype.setRequestHeader;
+      var origFetch=window.fetch;
+
+      function redirect(jwt,mid){
+        XMLHttpRequest.prototype.open=origOpen;
+        XMLHttpRequest.prototype.send=origSend;
+        XMLHttpRequest.prototype.setRequestHeader=origSetHeader;
+        window.fetch=origFetch;
         window.location='${timetableUrl}?jwt='+encodeURIComponent(jwt)+'&mid='+encodeURIComponent(mid);
-      })
-      .catch(function(){alert('Connection failed. Make sure you are logged into CaulfieldLife.');});
+      }
+
+      function extractMid(jwt){
+        origFetch('https://life-api.caulfieldlife.com.au/',{method:'POST',headers:{'Content-Type':'application/json','authorization':'Bearer X-ae97a16a-3e28-4365:Y-53e74b38-8a53-4ef7','origin':'https://caulfieldlife.com.au','referer':'https://caulfieldlife.com.au/','x-community-token':jwt},body:JSON.stringify({operationName:'GetSessionByJwt',variables:{jwtToken:jwt},query:'query GetSessionByJwt($jwtToken:String!){sessionByJwt(jwtIdToken:$jwtToken){member{id}}}'})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var mid=d&&d.data&&d.data.sessionByJwt&&d.data.sessionByJwt.member&&d.data.sessionByJwt.member.id;
+          if(!mid){alert('Got token but could not get member ID. Try reloading and clicking the bookmark again.');return;}
+          redirect(jwt,mid);
+        })
+        .catch(function(){alert('Connection failed.');});
+      }
+
+      XMLHttpRequest.prototype.setRequestHeader=function(h,v){
+        if(!found&&h&&h.toLowerCase()==='x-community-token'&&v&&v.length>50){found=v;extractMid(v);}
+        return origSetHeader.apply(this,arguments);
+      };
+
+      window.fetch=function(url,opts){
+        if(!found&&opts&&opts.headers){
+          var h=opts.headers;
+          var t=h['x-community-token']||(h.get&&h.get('x-community-token'));
+          if(t&&t.length>50){found=t;extractMid(t);}
+        }
+        return origFetch.apply(this,arguments);
+      };
+
+      setTimeout(function(){
+        if(!found){alert('No token detected. Try scrolling the timetable on CaulfieldLife to trigger a request, then click the bookmark again.');}
+      },15000);
+
+      alert('Token interceptor active. Now browse CaulfieldLife normally (e.g. view tomorrow's classes) and you will be redirected automatically.');
     })();`;
     document.getElementById('bookmarklet-anchor').href = 'javascript:' + code;
   })();
@@ -284,79 +325,99 @@
   function toggleManual() { document.getElementById('manual-fields').classList.toggle('open'); }
 
   function formatDateLabel(d) {
-    return d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const date = d instanceof Date ? d : safeDate(d);
+    if (!date) return '—';
+    return date.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   }
 
   function formatDateShort(iso) {
-    return new Date(iso).toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne', weekday: 'short', day: 'numeric', month: 'short' });
+    const d = safeDate(iso);
+    if (!d) return '—';
+    return d.toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne', weekday: 'short', day: 'numeric', month: 'short' });
   }
 
   function getMelbourneDayRange(date) {
-    const y = date.toLocaleString('en-AU', { timeZone: 'Australia/Melbourne', year: 'numeric' });
-    const m = date.toLocaleString('en-AU', { timeZone: 'Australia/Melbourne', month: '2-digit' });
-    const d = date.toLocaleString('en-AU', { timeZone: 'Australia/Melbourne', day: '2-digit' });
-    const toUTC = localStr => {
-      const asIfUTC = new Date(localStr + 'Z');
-      const probe = new Date();
-      const melbOffset = new Date(probe.toLocaleString('en-AU', { timeZone: 'Australia/Melbourne', hour12: false }).replace(',',''))
-                       - new Date(probe.toLocaleString('en-AU', { timeZone: 'UTC', hour12: false }).replace(',',''));
-      return new Date(asIfUTC.getTime() - melbOffset).toISOString();
-    };
+    const fmt = new Intl.DateTimeFormat('en-AU', {
+      timeZone: 'Australia/Melbourne',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: false,
+    });
+    const parts = fmt.formatToParts(date).reduce((a, p) => { a[p.type] = p.value; return a; }, {});
+    const iso = `${parts.year}-${parts.month}-${parts.day}`;
+    const fakeUtcStart = new Date(iso + 'T00:00:00.000Z');
+    const fakeUtcEnd   = new Date(iso + 'T23:59:59.999Z');
+    const melbParts = fmt.formatToParts(fakeUtcStart).reduce((a, p) => { a[p.type] = p.value; return a; }, {});
+    const melbUtc = new Date(`${melbParts.year}-${melbParts.month}-${melbParts.day}T${melbParts.hour}:${melbParts.minute}:${melbParts.second}.000Z`);
+    const offsetMs = fakeUtcStart - melbUtc;
     return {
-      startTime: toUTC(`${y}-${m}-${d}T00:00:00`),
-      endTime:   toUTC(`${y}-${m}-${d}T23:59:59.999`),
+      startTime: new Date(fakeUtcStart.getTime() + offsetMs).toISOString(),
+      endTime:   new Date(fakeUtcEnd.getTime() + offsetMs).toISOString(),
     };
   }
 
   function formatTime(iso) {
-    return new Date(iso).toLocaleTimeString('en-AU', { timeZone: 'Australia/Melbourne', hour: '2-digit', minute: '2-digit', hour12: false });
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleTimeString('en-AU', { timeZone: 'Australia/Melbourne', hour: '2-digit', minute: '2-digit', hour12: false });
   }
 
   function isNow(s, e) {
+    const start = new Date(s), end = new Date(e);
+    if (isNaN(start) || isNaN(end)) return false;
     const now = new Date();
-    return new Date(s) <= now && now <= new Date(e);
+    return start <= now && now <= end;
   }
 
   function getProgress(s, e) {
-    const now = Date.now();
-    const start = new Date(s).getTime();
-    const end = new Date(e).getTime();
-    return Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100));
+    const start = new Date(s).getTime(), end = new Date(e).getTime();
+    if (!start || !end || isNaN(start) || isNaN(end)) return 0;
+    return Math.min(100, Math.max(0, ((Date.now() - start) / (end - start)) * 100));
   }
 
   function updateProgressBars() {
     document.querySelectorAll('.class-progress-fill').forEach(el => {
-      const s = el.dataset.start;
-      const e = el.dataset.end;
+      const s = el.dataset.start, e = el.dataset.end;
       if (s && e) el.style.width = getProgress(s, e) + '%';
     });
   }
 
   async function fetchClasses(jwt, memberId, date) {
-    const { startTime, endTime } = getMelbourneDayRange(date);
-    const res = await fetch(API, {
-      method: "POST",
-      headers: { ...BASE_HEADERS, "x-community-token": jwt },
-      body: JSON.stringify({
-        operationName: "ClassData",
-        variables: { memberId, startTime, endTime },
-        query: `fragment ClassFields on Class {
-          id title description startTime endTime
-          dayOrder periodOrder periodName colour room teacherName
-        }
-        query ClassData($memberId: ID!, $startTime: DateTime!, $endTime: DateTime) {
-          classes(
-            where: { startTime: $startTime, endTime: $endTime, memberId: $memberId }
-            orderBy: { property: "startTime", sort: ASC }
-          ) { ...ClassFields }
-        }`
-      })
-    });
-    const data = JSON.parse(await res.text());
-    if (data?.errors?.length) throw new Error(JSON.stringify(data.errors, null, 2));
-    const classes = data?.data?.classes ?? [];
-    allFetchedClasses[date.toDateString()] = classes;
-    return classes;
+    try {
+      const { startTime, endTime } = getMelbourneDayRange(date);
+      const res = await fetch(API, {
+        method: "POST",
+        headers: { ...BASE_HEADERS, "x-community-token": jwt },
+        body: JSON.stringify({
+          operationName: "ClassData",
+          variables: { memberId, startTime, endTime },
+          query: `fragment ClassFields on Class {
+            id title description startTime endTime
+            dayOrder periodOrder periodName colour room teacherName
+          }
+          query ClassData($memberId: ID!, $startTime: DateTime!, $endTime: DateTime) {
+            classes(
+              where: { startTime: $startTime, endTime: $endTime, memberId: $memberId }
+              orderBy: { property: "startTime", sort: ASC }
+            ) { ...ClassFields }
+          }`
+        })
+      });
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch { throw new Error("INVALID_JSON_RESPONSE"); }
+      if (data?.errors?.length) {
+        const msg = JSON.stringify(data.errors);
+        throw new Error(/jwt|token/i.test(msg) ? "SESSION_EXPIRED" : msg);
+      }
+      const classes = data?.data?.classes ?? [];
+      allFetchedClasses[date.toDateString()] = classes;
+      return classes;
+    } catch(err) {
+      console.error("fetchClasses failed:", err);
+      throw err;
+    }
   }
 
   async function searchClasses(query) {
@@ -424,8 +485,7 @@
       el.innerHTML = `<div class="empty-day"><span class="big">—</span>No classes scheduled.</div>`;
       return;
     }
-    el.innerHTML = `<div class="class-list">${classes.map((c, i) => classCard(c, i, highlightId)).join('')}</div>
-    <div class="logout-wrap"><button class="nav-btn" style="opacity:0.5" onclick="clearSavedData()">logout / clear keys</button></div>`;
+    el.innerHTML = `<div class="class-list">${classes.map((c, i) => classCard(c, i, highlightId)).join('')}</div>`;
     if (highlightId) {
       document.getElementById(`class-${highlightId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -488,24 +548,17 @@
     document.getElementById("date-label").textContent = formatDateLabel(currentDate);
   }
 
-function showError(msg) {
-  let displayMsg = msg;
-
-  if (msg && msg.toLowerCase().includes('invalid time value')) {
-    displayMsg = 'Expired session, try logging out';
+  function showError(msg) {
+    const isSession = msg === 'SESSION_EXPIRED';
+    document.getElementById("content").innerHTML = `
+      <div class="error-box">${isSession ? 'Session expired — please log out and reconnect.' : msg}</div>
+    `;
   }
-
-  document.getElementById("content").innerHTML = `
-    <div class="error-box">${displayMsg}</div>
-    <div class="logout-wrap">
-      <button class="nav-btn" onclick="clearSavedData()">logout / clear keys</button>
-    </div>
-  `;
-}
 
   function hideLogin() {
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("search-bar").classList.add("visible");
+    document.getElementById("logout-wrap").style.display = "block";
   }
 
   async function startSession(jwt, memberId) {
