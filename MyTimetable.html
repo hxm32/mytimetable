@@ -218,7 +218,7 @@
     const d = new Date(iso);
     return isNaN(d.getTime()) ? null : d;
   }
-// I don't know why, but the whole bookmarklet login breaks whenever I change one of the messages here. I suggest you don't touch anything related to the bookmarklet
+
   (function() {
     const timetableUrl = window.location.href.split('?')[0];
     const code = `(function(){
@@ -548,9 +548,11 @@
 
   function showError(msg) {
     const isSession = msg === 'SESSION_EXPIRED';
-    document.getElementById("content").innerHTML = `
-      <div class="error-box">${isSession ? 'Session expired — please log out and reconnect.' : msg}</div>
-    `;
+    document.getElementById("content").innerHTML = isSession
+      ? `<div class="error-box">Session expired — please log out and reconnect.</div>`
+      : msg === 'Invalid time value'
+        ? `<div class="error-box">Something went wrong loading your timetable. Please refresh the page.</div>`
+        : `<div class="error-box">${msg}</div>`;
   }
 
   function hideLogin() {
