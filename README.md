@@ -10,7 +10,7 @@ class search, and more.
 - Next class button to easily know what you have next
 - Bookmarklet login — no DevTools required
 
-### To use, visit https://mytimetable.free.nf/
+### To use, visit https://mytimetable.free.nf
 
 Alternatively, download `MyTimetable.html` and open it in any browser. 
 This method usually doesn't support the bookmarklet login.
