@@ -106,7 +106,7 @@ query GetSessionByJwt($jwtToken: String!) {
       "isImpersonating": false,
       "xhqToken": "eyJhbGci...",
       "member": {
-        "id": "cm2mkjjy...",
+        "id": "a2w0mjhff1f...",
         "firstName": "First",
         "lastName": "Last",
         "preferredName": "First",
@@ -166,7 +166,7 @@ query ClassData($memberId: ID!, $startTime: DateTime!, $endTime: DateTime) {
 **Variables:**
 ```json
 {
-  "memberId": "cm2mkjjy...",
+  "memberId": "a2w0mjhff1f...",
   "startTime": "2026-04-11T13:00:00.000Z",
   "endTime": "2026-04-12T12:59:59.999Z"
 }
@@ -182,14 +182,14 @@ query ClassData($memberId: ID!, $startTime: DateTime!, $endTime: DateTime) {
       {
         "id": "232241-20220523",
         "title": "W12SDECA0",
-        "description": "SOFTWARE DEVELOPMENT - UNIT 3/4 W12",
+        "description": "SOFTWARE DEVELOPMENT",
         "startTime": "2026-04-11T22:40:00.000Z",
         "endTime": "2026-04-11T23:30:00.000Z",
         "dayOrder": 1,
         "periodOrder": 3,
         "periodName": "1",
         "colour": "#8D6CAB",
-        "room": "CAD",
+        "room": "C5",
         "teacherName": "Ms Jane Smith",
         "__typename": "Class"
       }
@@ -297,8 +297,8 @@ query DailyPlannerData(
 **Variables:**
 ```json
 {
-  "attendeeId": "cm2mkjjy...",
-  "organiserId": "cm2mkjjy...",
+  "attendeeId": "a2w0mjhff1f...",
+  "organiserId": "a2w0mjhff1f...",
   "startTime": "2026-04-11T13:00:00.000Z",
   "endTime": "2026-04-12T12:59:59.999Z"
 }
