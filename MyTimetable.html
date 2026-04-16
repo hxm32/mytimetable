@@ -9,6 +9,11 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root { --bg: #f5f5f2; --surface: #eaeae7; --border: #d4d4ce; --text: #1a1a18; --muted: #8a8a82; --accent: #2d6a2d; --accent-text: #f5f5f2; }
   body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; padding: 48px 24px; transition: background 0.3s, color 0.3s; }
+
+  .unofficial-banner { max-width: 720px; margin: 0 auto 20px; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .unofficial-banner a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; transition: color 0.15s; }
+  .unofficial-banner a:hover { color: var(--accent); }
+
   header { max-width: 720px; margin: 0 auto 48px; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 24px; gap: 16px; flex-wrap: wrap; }
   .header-left h1 { font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1; letter-spacing: -0.02em; }
   .header-left h1 em { font-style: italic; color: var(--accent); }
@@ -111,6 +116,10 @@
 </style>
 </head>
 <body>
+
+<div class="unofficial-banner">
+  Unofficial — not affiliated with <a href="https://caulfieldlife.com.au/" target="_blank">CaulfieldLife ↗</a>
+</div>
 
 <header>
   <div class="header-left">
