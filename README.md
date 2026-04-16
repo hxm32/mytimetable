@@ -21,10 +21,11 @@ in `API documentation.md`.
 ## Preview
 
 ### View classes
-<img width="650" height="700" alt="Screenshot 2026-04-12 at 8 05 58 pm" src="https://github.com/user-attachments/assets/13a8907a-f6b3-4a76-956a-331dbcd5ec42" />
+
+<img width="650" height="880" alt="Screenshot 2026-04-16 at 11 11 24 am" src="https://github.com/user-attachments/assets/017c351d-83dc-4194-8982-4c8638cea6c1" />
 
 ### Search function
-<img width="650" height="700" alt="Screenshot 2026-04-12 at 8 18 15 pm" src="https://github.com/user-attachments/assets/82cc68bf-090e-4774-924a-25ab8ee64e7b" />
+<img width="650" height="700" alt="Screenshot 2026-04-16 at 11 18 53 am" src="https://github.com/user-attachments/assets/4ef90820-e092-4fa7-a416-b9ea106219cb" />
 
 ### Theme customisation
 <img width="650" height="700" alt="Screenshot 2026-04-12 at 8 18 34 pm" src="https://github.com/user-attachments/assets/880cafa9-bf49-4e16-b4bc-6b176283a5f1" />
