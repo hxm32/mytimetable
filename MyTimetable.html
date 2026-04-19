@@ -159,7 +159,7 @@
     <h2>Connect your timetable</h2>
     <p class="subtitle">Two ways to log in. The bookmarklet is easiest — set it up once and use it every time.</p>
     <div class="bookmarklet-box">
-      <p><strong>Option 1 — Bookmarklet (recommended, one-time setup)</strong><br>Drag the button below to your bookmarks bar. Then whenever your session expires, just go to CaulfieldLife and click it.</p>
+      <p><strong>Option 1 — Bookmarklet (recommended, one-time setup, simpler)</strong><br>Drag the button below to your bookmarks bar. Then whenever your session expires, just go to CaulfieldLife and click it.</p>
       <a class="bookmarklet-link" id="bookmarklet-anchor" href="#">⚑ Connect to Timetable</a>
       <ol class="bookmarklet-steps">
         <li>Drag the button above to your browser's bookmarks bar. If you can't find it, press Command + Shift + B (Mac) or Ctrl + Shift + B (Windows) to show it in Chrome.</li>
@@ -172,7 +172,7 @@
     <button class="manual-toggle" onclick="toggleManual()">enter token manually ↓</button>
     <div class="manual-fields" id="manual-fields">
       <p style="font-size:0.72rem;color:var(--muted);line-height:1.6;margin-bottom:4px">
-        Go to <a href="https://caulfieldlife.com.au" target="_blank" style="color:var(--accent)">caulfieldlife.com.au</a>, log in, open DevTools → Network → filter <code style="background:var(--surface);padding:1px 4px">ClassData</code> → reload → click the request → Request Headers → copy <code style="background:var(--surface);padding:1px 4px">x-community-token</code>.
+        Go to <a href="https://caulfieldlife.com.au" target="_blank" style="color:var(--accent)">caulfieldlife.com.au</a>, log in, open DevTools → Network → filter <code style="background:var(--surface);padding:1px 4px">life-api.caulfieldlife.com</code> → reload → click the request → Request Headers → copy <code style="background:var(--surface);padding:1px 4px">x-community-token</code>.
       </p>
       <label>x-community-token</label>
       <textarea id="jwt-input" placeholder="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."></textarea>
