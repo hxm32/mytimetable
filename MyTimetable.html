@@ -87,6 +87,7 @@
 
   .empty-day { text-align: center; padding: 60px 0; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.05em; }
   .empty-day .big { font-family: 'Fraunces', serif; font-size: 4rem; color: var(--border); display: block; margin-bottom: 12px; }
+  .empty-day a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
   .class-list { display: flex; flex-direction: column; }
 
   .class-card { display: grid; grid-template-columns: 4px 1fr; gap: 0 16px; align-items: start; padding: 18px 0; border-bottom: 1px solid var(--border); animation: fadeUp 0.3s ease both; transition: background 0.2s; }
@@ -197,43 +198,51 @@
 <footer>
   Source code available at <a href="https://github.com/hxm32/mytimetable" target="_blank">github.com/hxm32/mytimetable</a>
   <div>Website not working? New feature suggestion? Have questions? Contact me at:</div>
-  <div>Discord - <strong>hxm32</strong> </div>
-  <div>Email - <strong>hxm128@outlook.com</strong> </div>
+  <div>Discord - <strong>hxm32</strong></div>
+  <div>Email - <strong>hxm128@outlook.com</strong></div>
 </footer>
 
 <script>
-  const API = "https://life-api.caulfieldlife.com.au/";
+  // CaulfieldLife GraphQL endpoint and required request headers
+  const API = 'https://life-api.caulfieldlife.com.au/';
   const BASE_HEADERS = {
-    "Content-Type": "application/json",
-    "authorization": "Bearer X-ae97a16a-3e28-4365:Y-53e74b38-8a53-4ef7",
-    "origin": "https://caulfieldlife.com.au",
-    "referer": "https://caulfieldlife.com.au/",
+    'Content-Type': 'application/json',
+    'authorization': 'Bearer X-ae97a16a-3e28-4365:Y-53e74b38-8a53-4ef7',
+    'origin': 'https://caulfieldlife.com.au',
+    'referer': 'https://caulfieldlife.com.au/',
   };
 
+  // Preset colour themes — each entry maps to CSS variable values
   const THEMES = [
-    { name: "Light",  bg: "#f5f5f2", surface: "#eaeae7", border: "#d4d4ce", text: "#1a1a18", muted: "#8a8a82", accent: "#2d6a2d", accentText: "#f5f5f2" },
-    { name: "Dark",   bg: "#0e0f11", surface: "#16181c", border: "#2a2d35", text: "#e8e9ec", muted: "#5a5e6b", accent: "#c8f060", accentText: "#0e0f11" },
-    { name: "Ocean",  bg: "#08131e", surface: "#0d1f2d", border: "#1a3348", text: "#d6eaf8", muted: "#4a7a9b", accent: "#4fc3f7", accentText: "#08131e" },
-    { name: "Rose",   bg: "#1a0f10", surface: "#261518", border: "#3d2025", text: "#f5e6e8", muted: "#7a4a50", accent: "#f48fb1", accentText: "#1a0f10" },
-    { name: "Slate",  bg: "#f8f9fa", surface: "#eef0f2", border: "#ced4da", text: "#212529", muted: "#6c757d", accent: "#4361ee", accentText: "#f8f9fa" },
-    { name: "Forest", bg: "#0d1a0e", surface: "#132116", border: "#1e3320", text: "#d8f0d8", muted: "#4a7a50", accent: "#69f0ae", accentText: "#0d1a0e" },
-    { name: "Sunset", bg: "#1a0e08", surface: "#261508", border: "#3d2510", text: "#fce8d8", muted: "#8a5a3a", accent: "#ff8a65", accentText: "#1a0e08" },
-    { name: "Mono",   bg: "#ffffff", surface: "#f0f0f0", border: "#cccccc", text: "#000000", muted: "#888888", accent: "#000000", accentText: "#ffffff" },
+    { name: 'Light',  bg: '#f5f5f2', surface: '#eaeae7', border: '#d4d4ce', text: '#1a1a18', muted: '#8a8a82', accent: '#2d6a2d', accentText: '#f5f5f2' },
+    { name: 'Dark',   bg: '#0e0f11', surface: '#16181c', border: '#2a2d35', text: '#e8e9ec', muted: '#5a5e6b', accent: '#c8f060', accentText: '#0e0f11' },
+    { name: 'Ocean',  bg: '#08131e', surface: '#0d1f2d', border: '#1a3348', text: '#d6eaf8', muted: '#4a7a9b', accent: '#4fc3f7', accentText: '#08131e' },
+    { name: 'Rose',   bg: '#1a0f10', surface: '#261518', border: '#3d2025', text: '#f5e6e8', muted: '#7a4a50', accent: '#f48fb1', accentText: '#1a0f10' },
+    { name: 'Slate',  bg: '#f8f9fa', surface: '#eef0f2', border: '#ced4da', text: '#212529', muted: '#6c757d', accent: '#4361ee', accentText: '#f8f9fa' },
+    { name: 'Forest', bg: '#0d1a0e', surface: '#132116', border: '#1e3320', text: '#d8f0d8', muted: '#4a7a50', accent: '#69f0ae', accentText: '#0d1a0e' },
+    { name: 'Sunset', bg: '#1a0e08', surface: '#261508', border: '#3d2510', text: '#fce8d8', muted: '#8a5a3a', accent: '#ff8a65', accentText: '#1a0e08' },
+    { name: 'Mono',   bg: '#ffffff', surface: '#f0f0f0', border: '#cccccc', text: '#000000', muted: '#888888', accent: '#000000', accentText: '#ffffff' },
   ];
 
-  let currentDate = new Date();
-  let cachedJwt = null;
-  let cachedMemberId = null;
-  let currentClasses = [];
-  let allFetchedClasses = {};
-  let progressInterval = null;
+  // App state
+  let currentDate = new Date();       // date currently shown in the timetable
+  let cachedJwt = null;               // session token from CaulfieldLife
+  let cachedMemberId = null;          // member ID paired with the token
+  let currentClasses = [];            // classes for the currently viewed day
+  let allFetchedClasses = {};         // cache of fetched classes keyed by date string
+  let progressInterval = null;        // interval ID for live progress bar updates
+  let searchSeq = 0;                  // increments on each search to cancel stale results
 
+  // Returns a Date object or null if the string is unparseable
   function safeDate(iso) {
     const d = new Date(iso);
     return isNaN(d.getTime()) ? null : d;
   }
 
-  (function() {
+  // Builds the bookmarklet href. When clicked on CaulfieldLife, it intercepts
+  // XHR/fetch requests to extract the x-community-token, then redirects here with
+  // the token and member ID as query params.
+  (function () {
     const timetableUrl = window.location.href.split('?')[0];
     const code = `(function(){
       var found=null;
@@ -284,6 +293,7 @@
     document.getElementById('bookmarklet-anchor').href = 'javascript:' + code;
   })();
 
+  // Applies a theme object to CSS variables, persists it, and syncs UI controls
   function applyTheme(t) {
     const r = document.documentElement.style;
     r.setProperty('--bg', t.bg);
@@ -292,7 +302,7 @@
     r.setProperty('--text', t.text);
     r.setProperty('--muted', t.muted);
     r.setProperty('--accent', t.accent);
-    r.setProperty('--accent-text', t.accentText || '#0e0f11');
+    r.setProperty('--accent-text', t.accentText || '#f5f5f2');
     localStorage.setItem('timetable-theme', JSON.stringify(t));
     document.querySelectorAll('.theme-swatch').forEach((el, i) => {
       el.classList.toggle('active', THEMES[i]?.name === t.name);
@@ -305,6 +315,7 @@
     document.getElementById('c-muted').value = t.muted;
   }
 
+  // Reads the colour picker values and applies them as a custom theme
   function applyCustomTheme() {
     const accent = document.getElementById('c-accent').value;
     applyTheme({
@@ -319,11 +330,15 @@
     });
   }
 
+  // Returns true if a hex colour is perceptually light, this is used to pick contrasting accent text)
   function isLight(hex) {
-    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
     return (r * 299 + g * 587 + b * 114) / 1000 > 128;
   }
 
+  // Renders the theme swatch grid in the theme panel
   function buildThemeGrid() {
     document.getElementById('theme-grid').innerHTML = THEMES.map((t, i) => `
       <div class="theme-swatch" onclick="applyTheme(THEMES[${i}])">
@@ -333,48 +348,68 @@
     `).join('');
   }
 
-  function toggleThemePanel() { document.getElementById('theme-panel').classList.toggle('open'); }
-  function toggleManual() { document.getElementById('manual-fields').classList.toggle('open'); }
+  function toggleThemePanel() {
+    document.getElementById('theme-panel').classList.toggle('open');
+  }
 
+  function toggleManual() {
+    document.getElementById('manual-fields').classList.toggle('open');
+  }
+
+  // Full date string for the header
   function formatDateLabel(d) {
     const date = d instanceof Date ? d : safeDate(d);
     if (!date) return '—';
-    return date.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    return date.toLocaleDateString('en-AU', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    });
   }
 
+  // Short date for search results
   function formatDateShort(iso) {
     const d = safeDate(iso);
     if (!d) return '—';
-    return d.toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne', weekday: 'short', day: 'numeric', month: 'short' });
+    return d.toLocaleDateString('en-AU', {
+      timeZone: 'Australia/Melbourne', weekday: 'short', day: 'numeric', month: 'short',
+    });
   }
 
+  // Returns UTC ISO start/end strings for midnight–23:59:59 on the given date in Melbourne time.
+  // Reads the Melbourne UTC offset at noon to handle DST correctly, then shifts the
+  // UTC day boundaries by that offset. Outputs Z-suffix strings the API can parse.
   function getMelbourneDayRange(date) {
-    const fmt = new Intl.DateTimeFormat('en-AU', {
+    const parts = new Intl.DateTimeFormat('en-AU', {
       timeZone: 'Australia/Melbourne',
       year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', second: '2-digit',
-      hour12: false,
-    });
-    const parts = fmt.formatToParts(date).reduce((a, p) => { a[p.type] = p.value; return a; }, {});
-    const iso = `${parts.year}-${parts.month}-${parts.day}`;
-    const fakeUtcStart = new Date(iso + 'T00:00:00.000Z');
-    const fakeUtcEnd   = new Date(iso + 'T23:59:59.999Z');
-    const melbParts = fmt.formatToParts(fakeUtcStart).reduce((a, p) => { a[p.type] = p.value; return a; }, {});
-    const melbUtc = new Date(`${melbParts.year}-${melbParts.month}-${melbParts.day}T${melbParts.hour}:${melbParts.minute}:${melbParts.second}.000Z`);
-    const offsetMs = fakeUtcStart - melbUtc;
+    }).formatToParts(date).reduce((a, p) => { a[p.type] = p.value; return a; }, {});
+
+    const offsetMinutes = new Date(
+      `${parts.year}-${parts.month}-${parts.day}T12:00:00.000Z`
+    ).toLocaleString('en-AU', { timeZone: 'Australia/Melbourne', timeZoneName: 'shortOffset' })
+      .match(/GMT([+-]\d+)/)?.[1];
+
+    const offsetMs = (parseInt(offsetMinutes ?? '+10', 10)) * 60 * 60 * 1000;
+
+    const startUtc = new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00.000Z`);
+    const endUtc   = new Date(`${parts.year}-${parts.month}-${parts.day}T23:59:59.999Z`);
+
     return {
-      startTime: new Date(fakeUtcStart.getTime() + offsetMs).toISOString(),
-      endTime:   new Date(fakeUtcEnd.getTime() + offsetMs).toISOString(),
+      startTime: new Date(startUtc.getTime() - offsetMs).toISOString(),
+      endTime:   new Date(endUtc.getTime() - offsetMs).toISOString(),
     };
   }
 
+  // Formats a UTC ISO string as HH:MM in Melbourne time
   function formatTime(iso) {
     if (!iso) return '—';
     const d = new Date(iso);
     if (isNaN(d.getTime())) return '—';
-    return d.toLocaleTimeString('en-AU', { timeZone: 'Australia/Melbourne', hour: '2-digit', minute: '2-digit', hour12: false });
+    return d.toLocaleTimeString('en-AU', {
+      timeZone: 'Australia/Melbourne', hour: '2-digit', minute: '2-digit', hour12: false,
+    });
   }
 
+  // Returns true if the current time falls within the class's start/end window
   function isNow(s, e) {
     const start = new Date(s), end = new Date(e);
     if (isNaN(start) || isNaN(end)) return false;
@@ -382,12 +417,14 @@
     return start <= now && now <= end;
   }
 
+  // Returns elapsed percentage (0–100) through a class's duration
   function getProgress(s, e) {
     const start = new Date(s).getTime(), end = new Date(e).getTime();
     if (!start || !end || isNaN(start) || isNaN(end)) return 0;
     return Math.min(100, Math.max(0, ((Date.now() - start) / (end - start)) * 100));
   }
 
+  // Refreshes the width of all visible progress bar fills
   function updateProgressBars() {
     document.querySelectorAll('.class-progress-fill').forEach(el => {
       const s = el.dataset.start, e = el.dataset.end;
@@ -395,14 +432,15 @@
     });
   }
 
+  // Fetches classes for a given date from the API and caches the result
   async function fetchClasses(jwt, memberId, date) {
     try {
       const { startTime, endTime } = getMelbourneDayRange(date);
       const res = await fetch(API, {
-        method: "POST",
-        headers: { ...BASE_HEADERS, "x-community-token": jwt },
+        method: 'POST',
+        headers: { ...BASE_HEADERS, 'x-community-token': jwt },
         body: JSON.stringify({
-          operationName: "ClassData",
+          operationName: 'ClassData',
           variables: { memberId, startTime, endTime },
           query: `fragment ClassFields on Class {
             id title description startTime endTime
@@ -413,30 +451,39 @@
               where: { startTime: $startTime, endTime: $endTime, memberId: $memberId }
               orderBy: { property: "startTime", sort: ASC }
             ) { ...ClassFields }
-          }`
-        })
+          }`,
+        }),
       });
+
       const text = await res.text();
       let data;
-      try { data = JSON.parse(text); } catch { throw new Error("INVALID_JSON_RESPONSE"); }
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error('INVALID_JSON_RESPONSE');
+      }
+
       if (data?.errors?.length) {
         const msg = JSON.stringify(data.errors);
-        throw new Error(/jwt|token/i.test(msg) ? "SESSION_EXPIRED" : msg);
+        throw new Error(/jwt|token/i.test(msg) ? 'SESSION_EXPIRED' : msg);
       }
+
       const classes = data?.data?.classes ?? [];
       allFetchedClasses[date.toDateString()] = classes;
       return classes;
-    } catch(err) {
-      console.error("fetchClasses failed:", err);
+    } catch (err) {
+      console.error('fetchClasses failed:', err);
       throw err;
     }
   }
 
+  // Searches classes across a -7 to +30 day window, fetching uncached days in parallel
   async function searchClasses(query) {
     const q = query.toLowerCase();
     const results = [];
     const today = new Date();
     const fetches = [];
+
     for (let i = -7; i <= 30; i++) {
       const d = new Date(today);
       d.setDate(d.getDate() + i);
@@ -444,57 +491,81 @@
       if (allFetchedClasses[key]) {
         allFetchedClasses[key].forEach(c => { if (matches(c, q)) results.push(c); });
       } else {
-        fetches.push(fetchClasses(cachedJwt, cachedMemberId, d).then(classes => {
-          classes.forEach(c => { if (matches(c, q)) results.push(c); });
-        }).catch(() => {}));
+        fetches.push(
+          fetchClasses(cachedJwt, cachedMemberId, d)
+            .then(classes => { classes.forEach(c => { if (matches(c, q)) results.push(c); }); })
+            .catch(() => {})
+        );
       }
     }
+
     if (fetches.length) await Promise.all(fetches);
     results.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
     return results;
   }
 
+  // Returns true if a class matches the search query on subject, teacher, or room
   function matches(c, q) {
     return (c.description || c.title || '').toLowerCase().includes(q)
       || (c.teacherName || '').toLowerCase().includes(q)
       || (c.room || '').toLowerCase().includes(q);
   }
 
+  // Builds the HTML string for a single class card
   function classCard(c, i, highlightId = null, showDate = false) {
     const isNext = c.id === highlightId;
     const active = isNow(c.startTime, c.endTime);
     const dateStr = showDate ? `<span class="detail-date">📅 ${formatDateShort(c.startTime)}</span>` : '';
-    const periodStr = (c.periodName !== null && c.periodName !== '') ? `<div class="class-period">Period ${c.periodName}</div>` : '';
-    const progressBar = active ? `
-      <div class="class-progress">
-        <div class="class-progress-fill" data-start="${c.startTime}" data-end="${c.endTime}" style="width:${getProgress(c.startTime, c.endTime)}%"></div>
-      </div>` : '';
+    const periodStr = (c.periodName !== null && c.periodName !== '')
+      ? `<div class="class-period">Period ${c.periodName}</div>`
+      : '';
+    const progressBar = active
+      ? `<div class="class-progress">
+          <div class="class-progress-fill" data-start="${c.startTime}" data-end="${c.endTime}" style="width:${getProgress(c.startTime, c.endTime)}%"></div>
+        </div>`
+      : '';
     return `
-    <div class="class-card${isNext ? ' next-up' : ''}${active ? ' active-class' : ''}" id="class-${c.id}" style="animation-delay:${i * 0.04}s">
-      <div class="class-bar" style="background:${c.colour || 'var(--muted)'}"></div>
-      <div class="class-body">
-        ${periodStr}
-        <div class="class-subject">
-          ${c.description || c.title}
-          ${active ? '<span class="now-indicator">now</span>' : ''}
-          ${isNext ? '<span class="next-indicator">next up</span>' : ''}
+      <div class="class-card${isNext ? ' next-up' : ''}${active ? ' active-class' : ''}" id="class-${c.id}" style="animation-delay:${i * 0.04}s">
+        <div class="class-bar" style="background:${c.colour || 'var(--muted)'}"></div>
+        <div class="class-body">
+          ${periodStr}
+          <div class="class-subject">
+            ${c.description || c.title}
+            ${active ? '<span class="now-indicator">now</span>' : ''}
+            ${isNext ? '<span class="next-indicator">next up</span>' : ''}
+          </div>
+          <div class="class-details">
+            <span>🕐 ${formatTime(c.startTime)} – ${formatTime(c.endTime)}</span>
+            ${dateStr}
+            ${c.room ? `<span>📍 ${c.room}</span>` : ''}
+            ${c.teacherName ? `<span>👤 ${c.teacherName}</span>` : ''}
+          </div>
+          ${progressBar}
         </div>
-        <div class="class-details">
-          <span>🕐 ${formatTime(c.startTime)} – ${formatTime(c.endTime)}</span>
-          ${dateStr}
-          ${c.room ? `<span>📍 ${c.room}</span>` : ''}
-          ${c.teacherName ? `<span>👤 ${c.teacherName}</span>` : ''}
-        </div>
-        ${progressBar}
-      </div>
-    </div>`;
+      </div>`;
   }
 
-  function renderClasses(classes, highlightId = null) {
+  // Clears the progress bar update interval
+  function stopProgressInterval() {
     clearInterval(progressInterval);
-    const el = document.getElementById("content");
+    progressInterval = null;
+  }
+
+  // Checks if a date is a Saturday in Melbourne time
+  function isSaturdayInMelbourne(date) {
+    return new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Melbourne', weekday: 'long' })
+      .format(date) === 'Saturday';
+  }
+
+  // Renders the class list; scrolls to highlightId if provided and starts progress tracking
+  function renderClasses(classes, highlightId = null) {
+    stopProgressInterval();
+    const el = document.getElementById('content');
     if (!classes.length) {
-      el.innerHTML = `<div class="empty-day"><span class="big">—</span>No classes scheduled.</div>`;
+      const satMsg = isSaturdayInMelbourne(currentDate)
+        ? `<br>It's Saturday — check <a href="https://portal.clipboard.app/cgs/" target="_blank">portal.clipboard.app/cgs</a> for sport fixtures.`
+        : '';
+      el.innerHTML = `<div class="empty-day"><span class="big">—</span>No classes scheduled.${satMsg}</div>`;
       return;
     }
     el.innerHTML = `<div class="class-list">${classes.map((c, i) => classCard(c, i, highlightId)).join('')}</div>`;
@@ -506,26 +577,35 @@
     }
   }
 
-  let searchTimeout = null;
+  let searchTimeout = null; // debounce timer for search input
+
+  // Debounces search input and renders results; uses searchSeq to discard stale responses
   function handleSearch() {
     const q = document.getElementById('search-input').value.trim();
     document.getElementById('search-clear').classList.toggle('visible', q.length > 0);
     clearTimeout(searchTimeout);
+
     if (!q) {
       document.getElementById('search-results-header').style.display = 'none';
       renderClasses(currentClasses);
-      document.getElementById("date-label").textContent = formatDateLabel(currentDate);
+      document.getElementById('date-label').textContent = formatDateLabel(currentDate);
       return;
     }
-    document.getElementById("date-label").textContent = 'Searching...';
+
+    document.getElementById('date-label').textContent = 'Searching...';
     document.getElementById('search-results-header').style.display = 'none';
+
+    const seq = ++searchSeq;
     searchTimeout = setTimeout(async () => {
       const results = await searchClasses(q);
-      document.getElementById("date-label").textContent = formatDateLabel(currentDate);
+      if (seq !== searchSeq) return;
+
+      document.getElementById('date-label').textContent = formatDateLabel(currentDate);
       const hdr = document.getElementById('search-results-header');
       hdr.style.display = 'block';
       hdr.textContent = `${results.length} result${results.length !== 1 ? 's' : ''} for "${q}"`;
-      const el = document.getElementById("content");
+
+      const el = document.getElementById('content');
       if (!results.length) {
         el.innerHTML = `<div class="empty-day"><span class="big">—</span>No classes found.</div>`;
         return;
@@ -534,14 +614,16 @@
     }, 400);
   }
 
+  // Resets the search input and restores the current day's class list
   function clearSearch() {
     document.getElementById('search-input').value = '';
     document.getElementById('search-clear').classList.remove('visible');
     document.getElementById('search-results-header').style.display = 'none';
     renderClasses(currentClasses);
-    document.getElementById("date-label").textContent = formatDateLabel(currentDate);
+    document.getElementById('date-label').textContent = formatDateLabel(currentDate);
   }
 
+  // Navigates to today if needed, then scrolls to and highlights the next upcoming class
   function findNextClass() {
     const now = new Date();
     if (currentDate.toDateString() !== now.toDateString()) {
@@ -549,32 +631,40 @@
       setTimeout(findNextClass, 800);
       return;
     }
+    clearSearch();
     const next = currentClasses.find(c => new Date(c.startTime) > now);
-    if (next) { renderClasses(currentClasses, next.id); }
-    else { alert("No more classes today!"); }
+    if (next) {
+      renderClasses(currentClasses, next.id);
+    } else {
+      alert('No more classes today!');
+    }
   }
 
+  // Shows the loading spinner while a fetch is in progress
   function showLoading() {
-    clearInterval(progressInterval);
-    document.getElementById("content").innerHTML = `<div class="status"><div class="spinner"></div>Fetching classes...</div>`;
-    document.getElementById("date-label").textContent = formatDateLabel(currentDate);
+    stopProgressInterval();
+    document.getElementById('content').innerHTML = `<div class="status"><div class="spinner"></div>Fetching classes...</div>`;
+    document.getElementById('date-label').textContent = formatDateLabel(currentDate);
   }
 
+  // Displays a user-friendly error message, with special handling for session expiry
   function showError(msg) {
     const isSession = msg === 'SESSION_EXPIRED';
-    document.getElementById("content").innerHTML = isSession
+    document.getElementById('content').innerHTML = isSession
       ? `<div class="error-box">Session expired — please log out and reconnect.</div>`
       : msg === 'Invalid time value'
         ? `<div class="error-box">Something went wrong loading your timetable. Please refresh the page.</div>`
         : `<div class="error-box">${msg}</div>`;
   }
 
+  // Hides the login screen and reveals the search bar and logout button
   function hideLogin() {
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("search-bar").classList.add("visible");
-    document.getElementById("logout-wrap").style.display = "block";
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('search-bar').classList.add('visible');
+    document.getElementById('logout-wrap').style.display = 'block';
   }
 
+  // Saves credentials, hides login, and loads the timetable for the current day
   async function startSession(jwt, memberId) {
     cachedJwt = jwt;
     cachedMemberId = memberId;
@@ -585,16 +675,20 @@
     try {
       currentClasses = await fetchClasses(cachedJwt, cachedMemberId, currentDate);
       renderClasses(currentClasses);
-    } catch(e) { showError(e.message); }
+    } catch (e) {
+      showError(e.message);
+    }
   }
 
+  // Reads the manually entered token and member ID from the form and starts a session
   async function loadWithToken() {
-    const jwt = document.getElementById("jwt-input").value.trim();
-    const memberId = document.getElementById("member-input").value.trim();
+    const jwt = document.getElementById('jwt-input').value.trim();
+    const memberId = document.getElementById('member-input').value.trim();
     if (!jwt || !memberId) return;
     await startSession(jwt, memberId);
   }
 
+  // Fetches and renders classes for currentDate and clears any active search first
   async function loadTimetable() {
     if (!cachedJwt || !cachedMemberId) return;
     clearSearch();
@@ -602,17 +696,25 @@
     try {
       currentClasses = await fetchClasses(cachedJwt, cachedMemberId, currentDate);
       renderClasses(currentClasses);
-    } catch(e) { showError(e.message); }
+    } catch (e) {
+      showError(e.message);
+    }
   }
 
+  // Moves currentDate forward or back by delta days and reloads
   function changeDay(delta) {
     currentDate = new Date(currentDate);
     currentDate.setDate(currentDate.getDate() + delta);
     loadTimetable();
   }
 
-  function goToday() { currentDate = new Date(); loadTimetable(); }
+  // Resets currentDate to today and reloads
+  function goToday() {
+    currentDate = new Date();
+    loadTimetable();
+  }
 
+  // Wipes saved credentials from localStorage and reloads to the login screen
   function clearSavedData() {
     localStorage.removeItem('life-jwt');
     localStorage.removeItem('life-member-id');
@@ -620,13 +722,15 @@
   }
 
   buildThemeGrid();
+  // Restore saved theme or fall back to Light
   const savedTheme = localStorage.getItem('timetable-theme');
   if (savedTheme) {
-    try { applyTheme(JSON.parse(savedTheme)); } catch(e) { applyTheme(THEMES[0]); }
+    try { applyTheme(JSON.parse(savedTheme)); } catch (e) { applyTheme(THEMES[0]); }
   } else {
     applyTheme(THEMES[0]);
   }
 
+  // If redirected from the bookmarklet, consume the URL params and start a session
   const params = new URLSearchParams(window.location.search);
   const paramJwt = params.get('jwt');
   const paramMid = params.get('mid');
@@ -634,6 +738,7 @@
     history.replaceState({}, '', window.location.pathname);
     startSession(paramJwt, paramMid);
   } else {
+    // Otherwise, resume from credentials saved in a previous session
     const storedJwt = localStorage.getItem('life-jwt');
     const storedMemberId = localStorage.getItem('life-member-id');
     if (storedJwt && storedMemberId) {
@@ -644,7 +749,7 @@
     }
   }
 
-  document.getElementById("date-label").textContent = formatDateLabel(currentDate);
+  document.getElementById('date-label').textContent = formatDateLabel(currentDate);
 </script>
 </body>
 </html>
