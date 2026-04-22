@@ -27,6 +27,9 @@ in `API documentation.md`.
 ### Search function
 <img width="650" height="700" alt="Screenshot 2026-04-16 at 11 18 53 am" src="https://github.com/user-attachments/assets/4ef90820-e092-4fa7-a416-b9ea106219cb" />
 
+### Progress bar
+<img width="650" height="140" alt="Screenshot 2026-04-23 at 9 02 29 am" src="https://github.com/user-attachments/assets/8506cc5d-6675-4e6b-a0cf-d0fc0a60f3a5" />
+
 ### Theme customisation
 <img width="650" height="700" alt="Screenshot 2026-04-12 at 8 18 34 pm" src="https://github.com/user-attachments/assets/880cafa9-bf49-4e16-b4bc-6b176283a5f1" />
 
