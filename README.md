@@ -18,7 +18,7 @@ This method usually doesn't support the bookmarklet login.
 I've also documented what I've discovered about the CaulfieldLife API 
 in `API documentation.md`.
 
-## Preview
+## Preview:
 
 ### View classes
 
