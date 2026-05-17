@@ -1,6 +1,6 @@
 # CaulfieldLife API Documentation
 
-This is unofficial, reverse-engineered documentation for the CaulfieldLife GraphQL API used by Caulfield Grammar School. It was discovered by inspecting network requests made by the CaulfieldLife website at [caulfieldlife.com.au](https://caulfieldlife.com.au).
+This is unofficial, reverse-engineered documentation for the CaulfieldLife GraphQL API used by Caulfield Grammar School. It was discovered by inspecting network requests made by the CaulfieldLife website at [caulfieldlife.com.au](https://caulfieldlife.com.au) through DevTools.
 
 ---
 
