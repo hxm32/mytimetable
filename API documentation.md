@@ -24,7 +24,7 @@ This is a standard Microsoft Azure AD JWT issued by the Caulfield Grammar identi
 
 - It is stored in `localStorage` under the key `jwt` on `caulfieldlife.com.au`
 - It expires approximately **1 hour** after issuance (`exp` field in the JWT payload)
-- It is sent as the `x-community-token` request header on **all** API requests
+- It is sent as the `x-community-token` request header on **all** API requests for timetable data
 - It encodes the user's email, name, Microsoft OID, preferred username, and tenant ID
 
 ### Token 2 — xhqToken
