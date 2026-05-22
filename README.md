@@ -8,7 +8,7 @@ class search, and more.
 - Search classes by subject, teacher, or room across a 5-week window
 - Active class highlight with live progress bar
 - Next class button to easily know what you have next
-- Bookmarklet login — no DevTools required
+- Bookmarklet login, no DevTools required
 
 ### To use, visit https://mytimetable.free.nf
 
@@ -53,7 +53,7 @@ in `API documentation.md`.
 > connected to Caulfield Grammar School or the CaulfieldLife platform in 
 > any way. It is an independent, unofficial tool built for personal use. 
 > This tool only accesses data that the authenticated user is already 
-> authorised to view. No school infrastructure is used — all processing 
+> authorised to view. No school infrastructure is used, all processing 
 > happens locally in the user's browser. Use at your own risk. If something 
 > breaks, contact me (Discord: `hxm32`, Email: `hxm123@outlook.com`), not the school. 
-> Since this is an unofficial product, it frequently breaks. Do not expect this to be reliable.
+> Since this is an unofficial product, do not expect this to be reliable.
