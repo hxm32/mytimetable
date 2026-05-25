@@ -1,7 +1,7 @@
 # mytimetable
 
 An unofficial, faster alternative to CaulfieldLife with customisable themes, 
-class search, and more.
+class search, live progress bar for classes, and more.
 
 ### Features
 - 8 built-in themes + fully customisable colours
