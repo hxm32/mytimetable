@@ -1,6 +1,6 @@
 # CaulfieldLife API Documentation
 
-This is unofficial, reverse-engineered documentation for the CaulfieldLife GraphQL API used by Caulfield Grammar School. It was discovered by inspecting network requests made by the CaulfieldLife website at [caulfieldlife.com.au](https://caulfieldlife.com.au) through DevTools.
+This is unofficial, reverse-engineered documentation for the CaulfieldLife API used by Caulfield Grammar School. It was discovered by inspecting network requests made by the CaulfieldLife website at [caulfieldlife.com.au](https://caulfieldlife.com.au) through DevTools.
 
 ---
 
@@ -16,7 +16,7 @@ All requests are `POST` to this single endpoint. The API is a **GraphQL** API �
 
 ## Authentication
 
-The API uses a two-token system.
+The API uses a two-token system:
 
 ### Token 1 — Microsoft JWT (`x-community-token`)
 
@@ -29,7 +29,7 @@ This is a standard Microsoft Azure AD JWT issued by the Caulfield Grammar identi
 
 ### Token 2 — xhqToken
 
-An internal CaulfieldLife session token. It is a shorter HS256 JWT containing:
+This is an internal CaulfieldLife session token. It is a shorter HS256 JWT containing:
 
 - `tokenType`: `"MEMBER"`
 - `id`: The internal member identifier (e.g. `Member-XXXX`)
